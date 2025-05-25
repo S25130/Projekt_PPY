@@ -1,16 +1,19 @@
-# This is a sample Python script.
+# main.py
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import tkinter as tk
 
+def main():
+    root = tk.Tk()
+    root.title("PasswordManager")
+    root.geometry("600x300")  # szerokość x wysokość
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+    label = tk.Label(root, text="Welcome in your Password Manager!", font=("Arial", 14))
+    label.pack(pady=20)
 
+    button = tk.Button(root, text="Close", command=root.destroy)
+    button.pack()
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+    root.mainloop()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+if __name__ == "__main__":
+    main()
