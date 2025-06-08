@@ -1,0 +1,24 @@
+To do list:
+GUI (Tkinker)
+	Welcome page
+	Login
+	Create Account?
+	Password list
+	Shown passwords
+	Edit
+	Logout
+Database (SQLite)
+	Users - UserID | Login | Password | MasterPrivileges
+	Passwords - PassId | UserID | App | Username | Login | Password
+Function
+	Login
+	Create Account
+	Create Table
+	Insert Into
+	Drop
+	Remove
+	
+
+	
+	
+	
