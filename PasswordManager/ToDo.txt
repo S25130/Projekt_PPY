@@ -5,7 +5,8 @@ GUI (Tkinker)
 	Create Account?
 	Password list
 	Shown passwords
-	Edit
+	change masterPassword
+	Edit (change password)
 	Logout
 Database (SQLite)
 	Users - UserID | Login | Password | MasterPrivileges
