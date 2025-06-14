@@ -1,24 +1,50 @@
-import tkinter as tk
-import os
+from database import init_db
+from gui import start_gui
+from auth import register_user, login_user
+from create_test_user import create_user
 
-def main():
-    root = tk.Tk()
-    root.title("PasswordManager")
-    root.geometry("1200x675")
 
-    try:
-        icon = tk.PhotoImage(file="locker.png")
-        root.iconphoto(True, icon)
-    except tk.TclError:
-        print("Błąd: Nieprawidłowy plik PNG lub plik nie istnieje.")
+def run_auth_test():
 
-    label = tk.Label(root, text="Welcome in your Password Manager!", font=("Arial", 14))
-    label.pack(pady=20)
+    print("=== SYMULACJA AUTORYZACJI ===")
+    print("1. Rejestracja")
+    print("2. Logowanie")
+    print("0. Wyjście")
 
-    button = tk.Button(root, text="Close", command=root.destroy)
-    button.pack()
+    choice = input("Wybierz opcję: ")
 
-    root.mainloop()
+    if choice == "1":
+        username = input("Podaj nazwę użytkownika: ")
+        password = input("Podaj hasło: ")
+        success = register_user(username, password)
+        if success:
+            print("Rejestracja zakończona sukcesem!")
+        else:
+            print("Taki użytkownik już istnieje.")
+
+    elif choice == "2":
+        username = input("Login: ")
+        password = input("Hasło: ")
+        user = login_user(username, password)
+        if user:
+            print(f"Zalogowano jako: {user.username}")
+        else:
+            print("Błędna nazwa użytkownika lub hasło.")
+
+    elif choice == "0":
+        print("Exit")
+    else:
+        print("Nieprawidłowa opcja.")
+
+
 
 if __name__ == "__main__":
-    main()
+    init_db()
+    start_gui()
+    if not login_user("admin", "admin123"):
+        create_user("admin", "admin123")
+    run_auth_test()
+
+
+
+
