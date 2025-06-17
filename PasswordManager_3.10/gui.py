@@ -1,46 +1,50 @@
 import tkinter as tk
-from tkinter import messagebox
-from auth import register_user
-from auth import login_user, is_strong_password
+from tkinter import messagebox, Canvas, PhotoImage, Button
+from pathlib import Path
+from auth import register_user, login_user, is_strong_password
 
+# Ścieżka główna
+OUTPUT_PATH = Path(__file__).parent
 
-def start_gui():
-    root = tk.Tk()
-    root.title("PasswordManager")
-    root.geometry("1200x675")
+# Pomocnicza funkcja do zasobów
+def relative_to_assets(path: str, base_folder: str) -> Path:
+    return OUTPUT_PATH / Path(base_folder) / "build/assets/frame0" / Path(path)
 
-    try:
-        icon = tk.PhotoImage(file="locker.png")
-        root.iconphoto(True, icon)
-    except tk.TclError:
-        print("Błąd: Nieprawidłowy plik PNG lub plik nie istnieje.")
-
-    label = tk.Label(root, text="Welcome in your Password Manager!", font=("Arial", 18))
-    label.pack(pady=40)
-
-    login_button = tk.Button(root, text="Sign in", width=20, height=2, command=handle_login)
-    login_button.pack(pady=10)
-
-    register_button = tk.Button(root, text="Sign up", width=20, height=2, command=handle_register)
-    register_button.pack(pady=10)
-
-    exit_button = tk.Button(root, text="Exit", width=20, height=2, command=root.destroy)
-    exit_button.pack(pady=40)
-
-    root.mainloop()
-
+# -------------------------
+#      LOGOWANIE
+# -------------------------
 def handle_login():
     login_window = tk.Toplevel()
     login_window.title("Login")
     login_window.geometry("400x250")
+    login_window.configure(bg="#FFFFFF")
 
-    tk.Label(login_window, text="Username:").pack(pady=5)
-    username_entry = tk.Entry(login_window)
-    username_entry.pack()
+    canvas = Canvas(
+        login_window,
+        bg="#FFFFFF",
+        height=250,
+        width=400,
+        bd=0,
+        highlightthickness=0,
+        relief="ridge"
+    )
+    canvas.place(x=0, y=0)
 
-    tk.Label(login_window, text="Password:").pack(pady=5)
-    password_entry = tk.Entry(login_window, show="*")
-    password_entry.pack()
+    try:
+        login_window.bg_image = PhotoImage(file=relative_to_assets("image_1.png", "Login"))
+        canvas.create_image(200.0, 125.0, image=login_window.bg_image)
+    except Exception as e:
+        print("Błąd ładowania tła:", e)
+        canvas.create_rectangle(0, 0, 400, 250, fill="#f0f0f0", outline="")
+
+    canvas.create_text(152.0, 25.0, anchor="nw", text="Username:", fill="#FFFFFF", font=("Inter Bold", 16))
+    canvas.create_text(152.0, 86.0, anchor="nw", text="Password:", fill="#FFFFFF", font=("Inter Bold", 16))
+
+    username_entry = tk.Entry(login_window, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0)
+    username_entry.place(x=110.0, y=48.0, width=180.0, height=28.0)
+
+    password_entry = tk.Entry(login_window, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, show="*")
+    password_entry.place(x=110.0, y=109.0, width=180.0, height=28.0)
 
     def submit_login():
         username = username_entry.get()
@@ -49,25 +53,61 @@ def handle_login():
         if user:
             messagebox.showinfo("Success", f"Logged in as: {user.username}")
             login_window.destroy()
-            # TODO: open user dashboard here
         else:
             messagebox.showerror("Login Failed", "Incorrect username or password.")
 
-    tk.Button(login_window, text="Log In", command=submit_login).pack(pady=20)
+    try:
+        login_window.login_button_image = PhotoImage(file=relative_to_assets("button_1.png", "Login"))
+        login_button = Button(
+            login_window,
+            image=login_window.login_button_image,
+            borderwidth=0,
+            highlightthickness=0,
+            command=submit_login,
+            relief="flat"
+        )
+        login_button.place(x=110.0, y=185.0, width=180.0, height=30.0)
+    except Exception as e:
+        print("Błąd ładowania przycisku:", e)
+        tk.Button(login_window, text="Login", command=submit_login).place(x=160, y=185)
 
+    login_window.resizable(False, False)
 
+# -------------------------
+#     REJESTRACJA
+# -------------------------
 def handle_register():
     register_window = tk.Toplevel()
     register_window.title("Register")
     register_window.geometry("400x250")
+    register_window.configure(bg="#FFFFFF")
 
-    tk.Label(register_window, text="Username:").pack(pady=5)
-    username_entry = tk.Entry(register_window)
-    username_entry.pack()
+    canvas = Canvas(
+        register_window,
+        bg="#FFFFFF",
+        height=250,
+        width=400,
+        bd=0,
+        highlightthickness=0,
+        relief="ridge"
+    )
+    canvas.place(x=0, y=0)
 
-    tk.Label(register_window, text="Master password:").pack(pady=5)
-    password_entry = tk.Entry(register_window, show="*")
-    password_entry.pack()
+    try:
+        register_window.bg_image = PhotoImage(file=relative_to_assets("image_1.png", "Register"))
+        canvas.create_image(200.0, 125.0, image=register_window.bg_image)
+    except Exception as e:
+        print("Błąd ładowania tła (Register):", e)
+        canvas.create_rectangle(0, 0, 400, 250, fill="#f0f0f0", outline="")
+
+    canvas.create_text(152.0, 25.0, anchor="nw", text="Username:", fill="#FFFFFF", font=("Inter Bold", 16))
+    canvas.create_text(115, 86.0, anchor="nw", text="Master Password:", fill="#FFFFFF", font=("Inter Bold", 16))
+
+    username_entry = tk.Entry(register_window, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0)
+    username_entry.place(x=110.0, y=48.0, width=180.0, height=28.0)
+
+    password_entry = tk.Entry(register_window, bd=0, bg="#FFFFFF", fg="#000716", highlightthickness=0, show="*")
+    password_entry.place(x=110.0, y=109.0, width=180.0, height=28.0)
 
     def submit_registration():
         username = username_entry.get()
@@ -90,5 +130,94 @@ def handle_register():
             register_window.destroy()
         else:
             messagebox.showerror("Error", "Username already exists.")
-    tk.Button(register_window, text="Sign Up", command=submit_registration).pack(pady=20)
 
+    try:
+        register_window.register_button_image = PhotoImage(file=relative_to_assets("button_1.png", "Register"))
+        register_button = Button(
+            register_window,
+            image=register_window.register_button_image,
+            borderwidth=0,
+            highlightthickness=0,
+            command=submit_registration,
+            relief="flat"
+        )
+        register_button.place(x=110.0, y=185.0, width=180.0, height=30.0)
+    except Exception as e:
+        print("Błąd ładowania przycisku (Register):", e)
+        tk.Button(register_window, text="Sign Up", command=submit_registration).place(x=160, y=185)
+
+    register_window.resizable(False, False)
+
+# -------------------------
+#     OKNO STARTOWE
+# -------------------------
+def start_gui():
+    window = tk.Tk()
+    window.title("PasswordManager")
+    window.geometry("1280x720")
+    window.configure(bg="#FFFFFF")
+
+    try:
+        icon = PhotoImage(file="locker.png")
+        window.iconphoto(True, icon)
+    except tk.TclError:
+        print("Błąd: Ikona nie została załadowana.")
+
+    canvas = Canvas(
+        window,
+        bg="#FFFFFF",
+        height=720,
+        width=1280,
+        bd=0,
+        highlightthickness=0,
+        relief="ridge"
+    )
+    canvas.place(x=0, y=0)
+
+    image_image_1 = PhotoImage(file=relative_to_assets("image_1.png", "Start"))
+    canvas.create_image(640.0, 360.0, image=image_image_1)
+
+    canvas.create_text(
+        105.0,
+        83.0,
+        anchor="nw",
+        text="PASSWORD MANAGER",
+        fill="#FFFFFF",
+        font=("Inter Bold", 96 * -1)
+    )
+
+    # Exit
+    button_image_1 = PhotoImage(file=relative_to_assets("button_1.png", "Start"))
+    button_1 = Button(
+        image=button_image_1,
+        borderwidth=0,
+        highlightthickness=0,
+        command=window.destroy,
+        relief="flat"
+    )
+    button_1.place(x=434.0, y=478.0, width=412.0, height=94.0)
+
+    # Sign Up
+    button_image_2 = PhotoImage(file=relative_to_assets("button_2.png", "Start"))
+    button_2 = Button(
+        image=button_image_2,
+        borderwidth=0,
+        highlightthickness=0,
+        command=handle_register,
+        relief="flat"
+    )
+    button_2.place(x=434.0, y=360.0, width=412.0, height=94.0)
+
+    # Sign In
+    button_image_3 = PhotoImage(file=relative_to_assets("button_3.png", "Start"))
+    button_3 = Button(
+        image=button_image_3,
+        borderwidth=0,
+        highlightthickness=0,
+        command=handle_login,
+        relief="flat"
+    )
+    button_3.place(x=434.0, y=242.0, width=412.0, height=94.0)
+
+    window.resizable(False, False)
+    window.mainloop()
