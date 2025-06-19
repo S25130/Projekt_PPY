@@ -77,11 +77,17 @@ class PasswordTableApp:
         self.btn_frame = tk.Frame(self.center_frame, bg="white")
         self.btn_frame.pack(pady=5)
 
+        self.btn_add = tk.Button(self.btn_frame, text="Dodaj hasło", width=20, command=self.open_add_password_window)
+        self.btn_add.pack(side=tk.LEFT, padx=10)
+
         self.btn_show = tk.Button(self.btn_frame, text="Pokaż hasło", width=20, command=self.show_passwords)
         self.btn_show.pack(side=tk.LEFT, padx=10)
 
         self.btn_hide = tk.Button(self.btn_frame, text="Ukryj hasło", width=20, command=self.hide_passwords)
         self.btn_hide.pack(side=tk.LEFT, padx=10)
+
+        self.btn_delete = tk.Button(self.btn_frame, text="Usuń hasło", width=20, command=self.delete_selected_passwords)
+        self.btn_delete.pack(side=tk.LEFT, padx=10)
 
     def schedule_place_checkboxes(self):
         self.retry_count += 1
@@ -112,6 +118,69 @@ class PasswordTableApp:
             if var.get() == 1:
                 masked = "*" * len(dane[idx]["haslo"])
                 self.tree.set(idx, "haslo", masked)
+
+    def open_add_password_window(self):
+        popup = tk.Toplevel(self.root)
+        popup.title("Dodaj nowe hasło")
+        popup.geometry("300x200")
+        popup.resizable(False, False)
+
+        tk.Label(popup, text="Aplikacja:").pack(pady=5)
+        entry_app = tk.Entry(popup)
+        entry_app.pack()
+
+        tk.Label(popup, text="Login:").pack(pady=5)
+        entry_login = tk.Entry(popup)
+        entry_login.pack()
+
+        tk.Label(popup, text="Hasło:").pack(pady=5)
+        entry_pass = tk.Entry(popup, show="*")
+        entry_pass.pack()
+
+        def save():
+            app_name = entry_app.get().strip()
+            login = entry_login.get().strip()
+            password = entry_pass.get().strip()
+
+            if app_name and login and password:
+                dane.append({"aplikacja": app_name, "login": login, "haslo": password})
+                self.refresh_table()
+                popup.destroy()
+
+        tk.Button(popup, text="Zapisz", command=save).pack(pady=10)
+
+    def refresh_table(self):
+        for i in self.tree.get_children():
+            self.tree.delete(i)
+        for cb in self.checkbox_widgets:
+            cb.destroy()
+        self.checkbox_vars.clear()
+        self.checkbox_widgets.clear()
+
+        for idx, rekord in enumerate(dane):
+            masked = "*" * len(rekord["haslo"])
+            self.tree.insert("", "end", iid=idx, values=(rekord["aplikacja"], rekord["login"], masked))
+            var = tk.IntVar()
+            self.checkbox_vars.append(var)
+            cb = tk.Checkbutton(self.right_frame, variable=var, bg="white")
+            self.checkbox_widgets.append(cb)
+
+        self.retry_count = 0
+        self.schedule_place_checkboxes()
+
+    def delete_selected_passwords(self):
+        to_delete = []
+
+        for idx, var in enumerate(self.checkbox_vars):
+            if var.get() == 1:
+                to_delete.append(idx)
+
+        # Usuń z końca, by nie zmieniać indeksów wcześniej
+        for idx in sorted(to_delete, reverse=True):
+            dane.pop(idx)
+
+        self.refresh_table()
+
 
 if __name__ == "__main__":
     root = tk.Tk()
