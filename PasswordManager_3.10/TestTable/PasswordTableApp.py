@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from PIL import Image, ImageTk
 
 # Dane testowe
 dane = [
@@ -19,20 +20,31 @@ class PasswordTableApp:
         style = ttk.Style()
         style.configure("Treeview", rowheight=ROW_HEIGHT)
 
-        self.main_frame = tk.Frame(root)
+        # === Tło z grafiki ===
+        bg_img = Image.open("tlo.png").resize((1280, 720))
+        self.bg_photo = ImageTk.PhotoImage(bg_img)
+        self.bg_label = tk.Label(root, image=self.bg_photo)
+        self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+
+        # === Kontener (środek ekranu) ===
+        self.center_frame = tk.Frame(root, width=960, height=540, bg="white")
+        self.center_frame.place(relx=0.5, rely=0.5, anchor="center")
+        self.center_frame.pack_propagate(False)
+
+        self.main_frame = tk.Frame(self.center_frame, bg="white")
         self.main_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.left_frame = tk.Frame(self.main_frame)
+        self.left_frame = tk.Frame(self.main_frame, bg="white")
         self.left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        self.right_frame = tk.Frame(self.main_frame, width=40)
+        self.right_frame = tk.Frame(self.main_frame, bg="white", width=40)
         self.right_frame.pack(side=tk.RIGHT, fill=tk.Y)
 
         self.tree = ttk.Treeview(
             self.left_frame,
             columns=("aplikacja", "login", "haslo"),
             show="headings",
-            height=20
+            height=15
         )
         self.tree.heading("aplikacja", text="Aplikacja")
         self.tree.heading("login", text="Login")
@@ -55,14 +67,15 @@ class PasswordTableApp:
 
             var = tk.IntVar()
             self.checkbox_vars.append(var)
-            cb = tk.Checkbutton(self.right_frame, variable=var)
+            cb = tk.Checkbutton(self.right_frame, variable=var, bg="white")
             self.checkbox_widgets.append(cb)
 
-        self.root.after(100, self.place_checkboxes)
+        self.retry_count = 0
+        self.schedule_place_checkboxes()
 
-        # Przyciski: Pokaż i Ukryj
-        self.btn_frame = tk.Frame(root)
-        self.btn_frame.pack(pady=10)
+        # Przyciski: Pokaż / Ukryj
+        self.btn_frame = tk.Frame(self.center_frame, bg="white")
+        self.btn_frame.pack(pady=5)
 
         self.btn_show = tk.Button(self.btn_frame, text="Pokaż hasło", width=20, command=self.show_passwords)
         self.btn_show.pack(side=tk.LEFT, padx=10)
@@ -70,12 +83,24 @@ class PasswordTableApp:
         self.btn_hide = tk.Button(self.btn_frame, text="Ukryj hasło", width=20, command=self.hide_passwords)
         self.btn_hide.pack(side=tk.LEFT, padx=10)
 
+    def schedule_place_checkboxes(self):
+        self.retry_count += 1
+        success = False
+        for idx, cb in enumerate(self.checkbox_widgets):
+            bbox = self.tree.bbox(idx)
+            if bbox:
+                _, y, _, height = bbox
+                cb.place(x=5, y=y + height // 2 - 10)
+                success = True
+        if not success and self.retry_count < 10:
+            self.root.after(100, self.schedule_place_checkboxes)
+
     def place_checkboxes(self):
         for idx, cb in enumerate(self.checkbox_widgets):
             bbox = self.tree.bbox(idx)
             if bbox:
                 x, y, width, height = bbox
-                cb.place(x=5, y=y + height // 2 - 10)
+                cb.place(in_=self.tree, x=5, y=y + height // 2 - 10)
 
     def show_passwords(self):
         for idx, var in enumerate(self.checkbox_vars):
