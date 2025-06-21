@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 from PIL import Image, ImageTk
 
 # Dane testowe
@@ -79,6 +80,9 @@ class PasswordTableApp:
 
         self.btn_add = tk.Button(self.btn_frame, text="Dodaj hasło", width=20, command=self.open_add_password_window)
         self.btn_add.pack(side=tk.LEFT, padx=10)
+
+        self.btn_edit = tk.Button(self.btn_frame, text="Zmień hasło", width=20, command=self.change_password)
+        self.btn_edit.pack(side=tk.LEFT, padx=10)
 
         self.btn_show = tk.Button(self.btn_frame, text="Pokaż hasło", width=20, command=self.show_passwords)
         self.btn_show.pack(side=tk.LEFT, padx=10)
@@ -167,6 +171,52 @@ class PasswordTableApp:
 
         self.retry_count = 0
         self.schedule_place_checkboxes()
+
+    def change_password(self):
+        selected_indices = [idx for idx, var in enumerate(self.checkbox_vars) if var.get() == 1]
+
+        if len(selected_indices) != 1:
+            tk.messagebox.showwarning("Błąd", "Zaznacz dokładnie jedno hasło do zmiany.")
+            return
+
+        idx = selected_indices[0]
+        current_entry = dane[idx]
+
+        popup = tk.Toplevel(self.root)
+        popup.title("Zmień hasło")
+        popup.geometry("300x220")
+        popup.resizable(False, False)
+
+        tk.Label(popup, text="Stare hasło:").pack(pady=5)
+        entry_old = tk.Entry(popup, show="*")
+        entry_old.pack()
+
+        tk.Label(popup, text="Nowe hasło:").pack(pady=5)
+        entry_new = tk.Entry(popup, show="*")
+        entry_new.pack()
+
+        tk.Label(popup, text="Powtórz nowe hasło:").pack(pady=5)
+        entry_repeat = tk.Entry(popup, show="*")
+        entry_repeat.pack()
+
+        def save_change():
+            old_pass = entry_old.get()
+            new_pass = entry_new.get()
+            repeat_pass = entry_repeat.get()
+
+            if old_pass != current_entry["haslo"]:
+                tk.messagebox.showerror("Błąd", "Stare hasło jest niepoprawne.")
+                return
+
+            if not new_pass or new_pass != repeat_pass:
+                tk.messagebox.showerror("Błąd", "Nowe hasła nie są takie same.")
+                return
+
+            current_entry["haslo"] = new_pass
+            self.refresh_table()
+            popup.destroy()
+
+        tk.Button(popup, text="Zapisz zmiany", command=save_change).pack(pady=10)
 
     def delete_selected_passwords(self):
         to_delete = []
