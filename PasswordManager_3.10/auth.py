@@ -47,7 +47,7 @@ def get_user_passwords(user_id):
     session.close()
     return [
         {
-            "id": entry.id,  # dodaj to
+            "id": entry.id,
             "aplikacja": entry.service_name,
             "login": entry.service_username,
             "haslo": entry.encrypted_password
