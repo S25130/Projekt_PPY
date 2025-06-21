@@ -229,7 +229,15 @@ class PasswordTableApp:
                 tk.messagebox.showerror("Błąd", "Nowe hasła nie są takie same.")
                 return
 
-            current_entry["haslo"] = new_pass
+            # aktualizacja w bazie
+            session = SessionLocal()
+            entry = session.query(PasswordEntry).filter_by(id=current_entry["id"], user_id=self.user_id).first()
+            if entry:
+                entry.encrypted_password = new_pass  # tu możesz dodać szyfrowanie
+                session.commit()
+            session.close()
+
+            self.dane = get_user_passwords(self.user_id)
             self.refresh_table()
             popup.destroy()
 
