@@ -236,16 +236,25 @@ class PasswordTableApp:
         tk.Button(popup, text="Zapisz zmiany", command=save_change).pack(pady=10)
 
     def delete_selected_passwords(self):
-        to_delete = []
+        to_delete_ids = []
 
         for idx, var in enumerate(self.checkbox_vars):
             if var.get() == 1:
-                to_delete.append(idx)
+                rekord = self.dane[idx]
+                to_delete_ids.append(rekord["id"])  # wymaga, żeby rekordy miały `id`
 
-        # Usuń z końca, by nie zmieniać indeksów wcześniej
-        for idx in sorted(to_delete, reverse=True):
-            self.dane.pop(idx)
+        if not to_delete_ids:
+            return
 
+        session = SessionLocal()
+        for pid in to_delete_ids:
+            entry = session.query(PasswordEntry).filter_by(id=pid, user_id=self.user_id).first()
+            if entry:
+                session.delete(entry)
+        session.commit()
+        session.close()
+
+        self.dane = get_user_passwords(self.user_id)
         self.refresh_table()
 
 
