@@ -1,6 +1,7 @@
 from passlib.hash import bcrypt
 from sqlalchemy.exc import IntegrityError
 from databaseModels import User
+from databaseModels import PasswordEntry
 from database import SessionLocal
 
 
@@ -39,3 +40,16 @@ def is_strong_password(password):
     if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
         return False
     return True
+
+def get_user_passwords(user_id):
+    session = SessionLocal()
+    passwords = session.query(PasswordEntry).filter_by(user_id=user_id).all()
+    session.close()
+    return [
+        {
+            "aplikacja": entry.service_name,
+            "login": entry.service_username,
+            "haslo": entry.encrypted_password  # Jeśli chcesz potem dodać odszyfrowywanie – tu
+        }
+        for entry in passwords
+    ]

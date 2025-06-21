@@ -1,7 +1,10 @@
 import tkinter as tk
 from tkinter import messagebox, Canvas, PhotoImage, Button
 from pathlib import Path
-from auth import register_user, login_user, is_strong_password
+from auth import register_user, login_user, is_strong_password, get_user_passwords
+#from auth import login_user, get_user_passwords
+
+from passwordTable import PasswordTableApp
 
 # Ścieżka główna
 OUTPUT_PATH = Path(__file__).parent
@@ -13,8 +16,8 @@ def relative_to_assets(path: str, base_folder: str) -> Path:
 # -------------------------
 #      LOGOWANIE
 # -------------------------
-def handle_login():
-    login_window = tk.Toplevel()
+def handle_login(root):
+    login_window = tk.Toplevel(root)
     login_window.title("Login")
     login_window.geometry("400x250")
     login_window.configure(bg="#FFFFFF")
@@ -51,8 +54,11 @@ def handle_login():
         password = password_entry.get()
         user = login_user(username, password)
         if user:
-            messagebox.showinfo("Success", f"Logged in as: {user.username}")
+            dane_uzytkownika = get_user_passwords(user.id)
             login_window.destroy()
+            for widget in root.winfo_children():
+                widget.destroy()
+            PasswordTableApp(root, dane_uzytkownika, user.id)
         else:
             messagebox.showerror("Login Failed", "Incorrect username or password.")
 
@@ -152,19 +158,19 @@ def handle_register():
 #     OKNO STARTOWE
 # -------------------------
 def start_gui():
-    window = tk.Tk()
-    window.title("PasswordManager")
-    window.geometry("1280x720")
-    window.configure(bg="#FFFFFF")
+    root = tk.Tk()
+    root.title("PasswordManager")
+    root.geometry("1280x720")
+    root.configure(bg="#FFFFFF")
 
     try:
         icon = PhotoImage(file="locker.png")
-        window.iconphoto(True, icon)
+        root.iconphoto(True, icon)
     except tk.TclError:
         print("Błąd: Ikona nie została załadowana.")
 
     canvas = Canvas(
-        window,
+        root,
         bg="#FFFFFF",
         height=720,
         width=1280,
@@ -192,7 +198,7 @@ def start_gui():
         image=button_image_1,
         borderwidth=0,
         highlightthickness=0,
-        command=window.destroy,
+        command=root.destroy,
         relief="flat"
     )
     button_1.place(x=434.0, y=478.0, width=412.0, height=94.0)
@@ -214,10 +220,10 @@ def start_gui():
         image=button_image_3,
         borderwidth=0,
         highlightthickness=0,
-        command=handle_login,
+        command=lambda: handle_login(root),  # ← przekazujemy root
         relief="flat"
     )
     button_3.place(x=434.0, y=242.0, width=412.0, height=94.0)
 
-    window.resizable(False, False)
-    window.mainloop()
+    root.resizable(False, False)
+    root.mainloop()

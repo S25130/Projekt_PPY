@@ -2,6 +2,10 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
+from auth import get_user_passwords
+from databaseModels import PasswordEntry
+from database import SessionLocal
+
 
 # Dane testowe
 # dane = [
@@ -13,9 +17,10 @@ from PIL import Image, ImageTk
 ROW_HEIGHT = 30
 
 class PasswordTableApp:
-    def __init__(self, root, dane):  # <-- dodaj dane jako argument
+    def __init__(self, root, dane, user_id):  # <-- dodaj dane jako argument
         self.root = root
         self.dane = dane
+        self.user_id = user_id
         self.root.title("Tabela Haseł")
         self.checkbox_vars = []
 
@@ -148,7 +153,18 @@ class PasswordTableApp:
             password = entry_pass.get().strip()
 
             if app_name and login and password:
-                self.dane.append({"aplikacja": app_name, "login": login, "haslo": password})
+                session = SessionLocal()
+                entry = PasswordEntry(
+                    service_name=app_name,
+                    service_username=login,
+                    encrypted_password=password,  # ← tu można dodać szyfrowanie np. Fernet
+                    user_id=self.user_id
+                )
+                session.add(entry)
+                session.commit()
+                session.close()
+
+                self.dane = get_user_passwords(self.user_id)  # odczytaj z bazy
                 self.refresh_table()
                 popup.destroy()
 
