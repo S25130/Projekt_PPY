@@ -13,9 +13,7 @@ OUTPUT_PATH = Path(__file__).parent
 def relative_to_assets(path: str, base_folder: str) -> Path:
     return OUTPUT_PATH / Path(base_folder) / "build/assets/frame0" / Path(path)
 
-# -------------------------
 #      LOGOWANIE
-# -------------------------
 def handle_login(root):
     login_window = tk.Toplevel(root)
     login_window.title("Login")
@@ -79,9 +77,7 @@ def handle_login(root):
 
     login_window.resizable(False, False)
 
-# -------------------------
 #     REJESTRACJA
-# -------------------------
 def handle_register():
     register_window = tk.Toplevel()
     register_window.title("Register")
@@ -154,9 +150,7 @@ def handle_register():
 
     register_window.resizable(False, False)
 
-# -------------------------
 #     OKNO STARTOWE
-# -------------------------
 def start_gui():
     root = tk.Tk()
     root.title("PasswordManager")

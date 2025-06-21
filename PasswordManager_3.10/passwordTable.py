@@ -27,13 +27,13 @@ class PasswordTableApp:
         style = ttk.Style()
         style.configure("Treeview", rowheight=ROW_HEIGHT)
 
-        # === Tło z grafiki ===
+        # Tło z grafiki
         bg_img = Image.open("tlo.png").resize((1280, 720))
         self.bg_photo = ImageTk.PhotoImage(bg_img)
         self.bg_label = tk.Label(root, image=self.bg_photo)
         self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-        # === Kontener (środek ekranu) ===
+        # Kontener (środek ekranu)
         self.center_frame = tk.Frame(root, width=960, height=540, bg="white")
         self.center_frame.place(relx=0.5, rely=0.5, anchor="center")
         self.center_frame.pack_propagate(False)
@@ -80,7 +80,7 @@ class PasswordTableApp:
         self.retry_count = 0
         self.schedule_place_checkboxes()
 
-        # Przyciski: Pokaż / Ukryj
+        # Przyciski:
         self.btn_frame = tk.Frame(self.center_frame, bg="white")
         self.btn_frame.pack(pady=5)
 
@@ -157,7 +157,7 @@ class PasswordTableApp:
                 entry = PasswordEntry(
                     service_name=app_name,
                     service_username=login,
-                    encrypted_password=password,  # ← tu można dodać szyfrowanie np. Fernet
+                    encrypted_password=password,
                     user_id=self.user_id
                 )
                 session.add(entry)
@@ -233,7 +233,7 @@ class PasswordTableApp:
             session = SessionLocal()
             entry = session.query(PasswordEntry).filter_by(id=current_entry["id"], user_id=self.user_id).first()
             if entry:
-                entry.encrypted_password = new_pass  # tu możesz dodać szyfrowanie
+                entry.encrypted_password = new_pass
                 session.commit()
             session.close()
 
@@ -249,7 +249,7 @@ class PasswordTableApp:
         for idx, var in enumerate(self.checkbox_vars):
             if var.get() == 1:
                 rekord = self.dane[idx]
-                to_delete_ids.append(rekord["id"])  # wymaga, żeby rekordy miały `id`
+                to_delete_ids.append(rekord["id"])  # wymaga `id`
 
         if not to_delete_ids:
             return
